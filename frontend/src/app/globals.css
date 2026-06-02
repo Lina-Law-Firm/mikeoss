@@ -3,17 +3,65 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================================
+   lina-os-front design system — warm "paper / ink" palette
+   ============================================================
+   The app paints almost entirely through Tailwind's named color
+   scales (`gray-*`, `white`, `black`, `blue-*`). Tailwind v4 backs
+   each of those utilities with a `--color-*` theme variable, so
+   overriding the scales here recolors the whole platform in one
+   place — no per-component edits. Lightness order is preserved so
+   every existing contrast/hierarchy relationship still holds; only
+   the hue shifts from cool grey to warm paper/ink.
+   Tokens mirror lina-os-front's `tailwind.config.ts`.
+   ============================================================ */
+@theme {
+    /* True surface + deepest ink */
+    --color-white: #fffbf7; /* paper.50  — cards, panels, "on-dark" text */
+    --color-black: #14110d; /* ink.900   — primary buttons, max-contrast text */
+
+    /* Grey ramp → warm paper→ink ramp (same L ordering as Tailwind grey) */
+    --color-gray-50: #faf5ef; /* paper.65  — subtle page tint */
+    --color-gray-100: #f5efe7; /* paper.100 — hover fills, chips */
+    --color-gray-200: #e5e3e1; /* paper.300 — hairline borders / dividers */
+    --color-gray-300: #d8cfc4; /* warm border / disabled edge */
+    --color-gray-400: #948b7e; /* ink.400   — icons, placeholders */
+    --color-gray-500: #726657; /* ink.500   — muted label (WCAG-AA tuned) */
+    --color-gray-600: #6e635a; /* ink.600   — secondary text */
+    --color-gray-700: #5c524a; /* ink.700   — body text */
+    --color-gray-800: #3d3530; /* ink.800 */
+    --color-gray-900: #14110d; /* ink.900   — headings / strong text */
+    --color-gray-950: #0c0a07;
+
+    /* Blue accent → warm taupe (editorial palette has no blue).
+       Recolors the ~51 blue accent usages: primary actions, links,
+       selected states and highlight washes all become warm taupe. */
+    --color-blue-50: #efeae4; /* taupe.100 — selected / active wash */
+    --color-blue-100: #efeae4;
+    --color-blue-200: #dcd5cc;
+    --color-blue-300: #c8c0b5; /* taupe.300 */
+    --color-blue-400: #a8928f;
+    --color-blue-500: #8c7575; /* taupe.500 */
+    --color-blue-600: #6e5c5c; /* taupe.700 — primary accent */
+    --color-blue-700: #5e4e4e;
+    --color-blue-800: #463a3a; /* taupe.900 */
+    --color-blue-900: #3a2f2f;
+    --color-blue-950: #2a2121;
+}
+
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --font-sans: var(--font-inter);
-    --font-serif: var(--font-eb-garamond);
-    --color-blue: rgb(0, 136, 255);
-    --color-blue-50: rgba(0, 136, 255, 0.05);
-    --color-blue-100: rgba(0, 136, 255, 0.1);
-    --color-blue-200: rgba(0, 136, 255, 0.3);
-    --color-blue-600: rgb(0, 136, 255);
-    --color-blue-700: rgb(0, 120, 230);
+    /* lina uses a single sans (Inter) across every type slot, incl. serif. */
+    --font-serif: var(--font-inter);
+    /* Bare `blue` accent tokens repointed to warm taupe (no blue in palette). */
+    --color-blue: #6e5c5c;
+    --color-blue-50: #efeae4;
+    --color-blue-100: #efeae4;
+    --color-blue-200: #dcd5cc;
+    --color-blue-600: #6e5c5c;
+    --color-blue-700: #5e4e4e;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -50,39 +98,45 @@
 }
 
 :root {
-    --radius: 0.625rem;
-    --color-azure: 0, 136, 255;
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    /* 0.5rem so shadcn `rounded-md` resolves to 6px — lina's button radius. */
+    --radius: 0.5rem;
+    /* Legal cross-reference link colour (USC/CFR) → warm taupe.700, was azure. */
+    --color-azure: 110, 92, 92;
+
+    /* shadcn semantic tokens → lina warm paper / ink palette. Drives the
+       Button / Input / Badge / Dropdown primitives and any `bg-background`,
+       `text-muted-foreground`, `border`, etc. utilities. */
+    --background: #fffbf7; /* paper.50 */
+    --foreground: #14110d; /* ink.900 */
+    --card: #fffbf7;
+    --card-foreground: #14110d;
+    --popover: #fffbf7;
+    --popover-foreground: #14110d;
+    --primary: #14110d; /* ink — primary buttons are ink-on-paper */
+    --primary-foreground: #fffbf7;
+    --secondary: #f5efe7; /* paper.100 */
+    --secondary-foreground: #14110d;
+    --muted: #f5efe7;
+    --muted-foreground: #726657; /* ink.500 */
+    --accent: #efeae4; /* taupe.100 — warm hover/active wash */
+    --accent-foreground: #14110d;
+    --destructive: #6b1a22; /* bordeaux.700 */
+    --border: #e5e3e1; /* paper.300 hairline */
+    --input: #e5e3e1;
+    --ring: #14110d; /* ink focus ring */
+    --chart-1: #6e5c5c; /* taupe.700 */
+    --chart-2: #948b7e; /* ink.400 */
+    --chart-3: #2f6b3b; /* success green */
+    --chart-4: #6b1a22; /* bordeaux */
+    --chart-5: #c8c0b5; /* taupe.300 */
+    --sidebar: #faf5ef; /* paper.65 */
+    --sidebar-foreground: #14110d;
+    --sidebar-primary: #14110d;
+    --sidebar-primary-foreground: #fffbf7;
+    --sidebar-accent: #efeae4;
+    --sidebar-accent-foreground: #14110d;
+    --sidebar-border: #e5e3e1;
+    --sidebar-ring: #14110d;
 }
 
 .dark {
@@ -124,13 +178,105 @@
         @apply border-border outline-ring/50;
     }
 
+    html {
+        -webkit-text-size-adjust: 100%;
+        /* Warm, thin scrollbar everywhere (standard props; webkit detail below). */
+        scrollbar-color: rgba(20, 17, 13, 0.18) transparent;
+    }
+
     body {
         @apply bg-background text-foreground;
+        /* lina editorial reading rhythm. */
+        line-height: 1.7;
+        letter-spacing: 0;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        font-feature-settings:
+            "kern" 1,
+            "liga" 1;
     }
 
     button {
         cursor: pointer;
+        /* Soft 6px default so any unstyled button reads as lina's buttons. */
+        border-radius: 6px;
     }
+
+    /* lina keeps form controls almost-square (2px) where no radius is set. */
+    input,
+    textarea,
+    select {
+        border-radius: 2px;
+    }
+
+    ::selection {
+        background: #14110d;
+        color: #fffbf7;
+    }
+
+    :focus-visible {
+        outline: 2px solid #14110d;
+        outline-offset: 2px;
+    }
+}
+
+/* ============================================================
+   Film grain overlay — CSS-only, no image asset (lina signature)
+   ============================================================ */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+    mix-blend-mode: overlay;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body::before {
+        display: none;
+    }
+}
+
+/* ============================================================
+   Discreet warm scrollbar — opt-in detail for scroll panels
+   ============================================================
+   Thin, floating, ink-tinted thumb on the paper background. The
+   transparent border is clipped to the padding box so the coloured
+   part stays slim and inset from content. */
+.scroll-discreet {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: rgba(20, 17, 13, 0.18) transparent;
+}
+
+.scroll-discreet::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+}
+
+.scroll-discreet::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scroll-discreet::-webkit-scrollbar-thumb {
+    background-color: rgba(20, 17, 13, 0.14);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    border-left-width: 6px;
+    background-clip: padding-box;
+}
+
+.scroll-discreet:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(20, 17, 13, 0.24);
+}
+
+.scroll-discreet::-webkit-scrollbar-thumb:active {
+    background-color: rgba(20, 17, 13, 0.34);
 }
 
 .usc-section {
@@ -257,28 +403,29 @@
 
 .cfr-section th,
 .cfr-section td {
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e3e1;
     padding: 0.5em 0.75em;
     text-align: left;
 }
 
 .cfr-section th {
-    background: #f8fafc;
+    background: #f5efe7;
     font-weight: 600;
 }
 
 .cfr-section .authority-section,
 .cfr-section .source-section {
     font-size: 0.875em;
-    color: #64748b;
+    color: #726657;
     margin: 1em 0;
     padding: 0.75em;
-    border-left: 3px solid #e2e8f0;
+    border-left: 3px solid #e5e3e1;
 }
 
 @layer utilities {
+    /* EB Garamond removed in favour of lina's all-Inter system. */
     .font-eb-garamond {
-        font-family: var(--font-eb-garamond);
+        font-family: var(--font-inter);
     }
 
     .sidebar-fade-in {
@@ -337,7 +484,7 @@
     padding: 1rem 1.25rem;
     outline: none;
     font-size: 0.875rem;
-    color: #374151;
+    color: #5c524a;
     line-height: 1.65;
     font-family: var(--font-serif);
 }
@@ -345,7 +492,7 @@
 .workflow-editor-content h1 {
     font-size: 1rem;
     font-weight: 600;
-    color: #111827;
+    color: #14110d;
     margin-top: 1.25rem;
     margin-bottom: 0.375rem;
 }
@@ -353,7 +500,7 @@
 .workflow-editor-content h2 {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #111827;
+    color: #14110d;
     margin-top: 0.875rem;
     margin-bottom: 0.25rem;
 }
@@ -361,7 +508,7 @@
 .workflow-editor-content h3 {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: #111827;
+    color: #14110d;
     margin-top: 0.625rem;
     margin-bottom: 0.125rem;
 }
@@ -402,7 +549,7 @@
 
 .workflow-editor-content strong {
     font-weight: 600;
-    color: #1f2937;
+    color: #3d3530;
 }
 
 .workflow-editor-content em {
@@ -429,14 +576,14 @@
 }
 
 .pdf-text-layer .pdf-text-highlight {
-    background-color: rgba(37, 99, 235, 0.2);
+    background-color: rgba(140, 117, 117, 0.28);
     border-radius: 2px;
     position: static;
 }
 
 .docx-view-container span.docx-text-highlight,
 .docx-view-container .docx-text-highlight {
-    background-color: rgba(37, 99, 235, 0.35) !important;
+    background-color: rgba(140, 117, 117, 0.42) !important;
     border-radius: 2px;
     padding: 0 1px;
     color: inherit !important;
@@ -444,15 +591,15 @@
 
 /* docx-preview tracked-change styling */
 .docx-view-container ins {
-    color: #16a34a;
+    color: #2f6b3b;
     text-decoration: none;
-    background-color: rgba(22, 163, 74, 0.08);
+    background-color: rgba(47, 107, 59, 0.1);
 }
 
 .docx-view-container del {
-    color: #dc2626;
+    color: #6b1a22;
     text-decoration: line-through;
-    background-color: rgba(220, 38, 38, 0.08);
+    background-color: rgba(107, 26, 34, 0.1);
 }
 
 /* Kill docx-preview's default dark-gray wrapper chrome — let the scroll
@@ -487,11 +634,11 @@
 
 @keyframes docxEditFlash {
     0%, 20% {
-        background-color: rgba(59, 130, 246, 0.45);
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.45);
+        background-color: rgba(110, 92, 92, 0.45);
+        box-shadow: 0 0 0 2px rgba(110, 92, 92, 0.45);
     }
     100% {
-        background-color: rgba(59, 130, 246, 0);
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0);
+        background-color: rgba(110, 92, 92, 0);
+        box-shadow: 0 0 0 2px rgba(110, 92, 92, 0);
     }
 }

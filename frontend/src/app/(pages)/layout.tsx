@@ -102,7 +102,7 @@ export default function MikeLayout({
                                     <PanelLeft className="h-4 w-4" />
                                 </button>
                             </div>
-                            <main className="flex-1 overflow-y-auto md:overflow-hidden w-full h-full">
+                            <main className="scroll-discreet flex-1 overflow-y-auto md:overflow-hidden w-full h-full">
                                 {children}
                             </main>
                         </div>

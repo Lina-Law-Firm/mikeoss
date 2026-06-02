@@ -16,7 +16,7 @@ import { useUserProfile } from "@/contexts/UserProfileContext";
 import { useChatHistoryContext } from "@/app/contexts/ChatHistoryContext";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { MikeIcon } from "@/components/chat/mike-icon";
+import Image from "next/image";
 import { SidebarChatItem } from "@/app/components/shared/SidebarChatItem";
 import { listProjects } from "@/app/lib/mikeApi";
 import type { MikeProject } from "@/app/components/shared/types";
@@ -150,13 +150,30 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                             href="/assistant"
                             className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
                         >
-                            <MikeIcon size={22} />
+                            <Image
+                                src="/logos/symbol-black.png"
+                                alt=""
+                                width={22}
+                                height={22}
+                                className="shrink-0"
+                            />
                             <span
-                                className={`text-2xl font-light font-serif ${
+                                className={`inline-flex items-baseline gap-1.5 text-2xl leading-none tracking-tight ${
                                     shouldAnimate ? "sidebar-fade-in" : ""
                                 }`}
                             >
-                                Mike
+                                <span className="font-sans font-medium">
+                                    Lina
+                                </span>
+                                <span
+                                    className="font-normal italic"
+                                    style={{
+                                        fontFamily:
+                                            'Georgia, "Times New Roman", serif',
+                                    }}
+                                >
+                                    OS
+                                </span>
                             </span>
                         </Link>
                     </div>
@@ -306,7 +323,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                             />
                         </button>
                         <div
-                            className={`overflow-y-auto flex-1 ${
+                            className={`scroll-discreet overflow-y-auto flex-1 ${
                                 historyCollapsed ? "hidden" : ""
                             }`}
                         >
