@@ -10,7 +10,12 @@ export function createServerSupabase() {
   if (!url || !key) {
     throw new Error("SUPABASE_URL and SUPABASE_SECRET_KEY must be set");
   }
-  return createClient(url, key, { auth: { persistSession: false } });
+  // Mike's tables live in the dedicated `mike` schema on the shared project so
+  // they don't collide with the existing app's public tables.
+  return createClient(url, key, {
+    auth: { persistSession: false },
+    db: { schema: "mike" },
+  });
 }
 
 /**

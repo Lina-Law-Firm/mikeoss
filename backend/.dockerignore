@@ -1,0 +1,14 @@
+node_modules
+dist
+.env
+.env.*
+*.log
+.git
+.gitignore
+.dockerignore
+.gcloudignore
+Dockerfile
+bun.lock
+schema.sql
+schema.mike.sql
+nixpacks.toml
