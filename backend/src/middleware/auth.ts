@@ -30,24 +30,8 @@ export async function requireAuth(
     return;
   }
 
-  // Guest/demo users sign in anonymously (Supabase sets is_anonymous=true).
-  // They get a read-only view of the platform: allow safe reads, reject any
-  // mutation. Enforced here, server-side, so the browser cannot bypass it.
-  const isAnonymous = data.user.is_anonymous === true;
-  const isWrite = ["POST", "PUT", "PATCH", "DELETE"].includes(
-    req.method.toUpperCase(),
-  );
-  if (isAnonymous && isWrite) {
-    res.status(403).json({
-      detail:
-        "You're viewing a read-only demo. Create a free account to upload documents and make changes.",
-    });
-    return;
-  }
-
   res.locals.userId = data.user.id;
   res.locals.userEmail = data.user.email?.toLowerCase() ?? "";
-  res.locals.isAnonymous = isAnonymous;
   res.locals.token = token;
   next();
 }
