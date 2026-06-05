@@ -17,9 +17,11 @@ export const metadata: Metadata = {
         "AI-powered legal document analysis and contract review platform.",
     icons: {
         icon: [
-            { url: "/icon.svg", type: "image/svg+xml" },
-            { url: "/favicon.ico" },
+            { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+            { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+            { url: "/favicon.ico", sizes: "any" },
         ],
+        shortcut: "/favicon.ico",
         apple: "/apple-touch-icon.png",
     },
     openGraph: {
