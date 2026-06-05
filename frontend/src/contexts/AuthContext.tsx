@@ -12,11 +12,14 @@ import { supabase } from "@/lib/supabase";
 interface User {
     id: string;
     email: string;
+    isAnonymous: boolean;
 }
 
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
+    /** True when the session is a guest (anonymous) demo session. */
+    isAnonymous: boolean;
     authLoading: boolean;
     signOut: () => Promise<void>;
 }
@@ -37,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setUser({
                     id: session.user.id,
                     email: session.user.email || "",
+                    isAnonymous: session.user.is_anonymous ?? false,
                 });
             }
             setAuthLoading(false);
@@ -51,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setUser({
                     id: session.user.id,
                     email: session.user.email || "",
+                    isAnonymous: session.user.is_anonymous ?? false,
                 });
             } else {
                 setUser(null);
@@ -73,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             value={{
                 user,
                 isAuthenticated: !!user,
+                isAnonymous: !!user?.isAnonymous,
                 authLoading,
                 signOut,
             }}

@@ -169,6 +169,23 @@ export function LinaSignIn({ mode = "signin" }: LinaSignInProps) {
         // On success the browser is redirected to Google; no push here.
     }
 
+    async function goGuest() {
+        if (pending) return;
+        setPending("guest");
+        setError(null);
+        // Anonymous sign-in gives a real (guest) Supabase session, so the
+        // backend's JWT auth still works — but it's flagged read-only there.
+        const { error: guestError } = await supabase.auth.signInAnonymously();
+        if (guestError) {
+            setError(
+                "The demo is unavailable right now. Please try again, or sign in with your account.",
+            );
+            setPending(null);
+            return;
+        }
+        router.push("/assistant");
+    }
+
     function pickProvider() {
         // mikeoss isn't wired for SAML/OIDC SSO yet — surface that honestly
         // rather than faking a sign-in.
@@ -516,6 +533,20 @@ export function LinaSignIn({ mode = "signin" }: LinaSignInProps) {
                                                 ? "Sign up with Google"
                                                 : "Login with Google"}
                                         </>
+                                    )}
+                                </button>
+
+                                {/* Guest / demo access — no account needed */}
+                                <button
+                                    type="button"
+                                    onClick={goGuest}
+                                    disabled={!!pending}
+                                    className={`${OUTLINE_BTN} mt-3`}
+                                >
+                                    {pending === "guest" ? (
+                                        <Spinner />
+                                    ) : (
+                                        "View demo — no account needed"
                                     )}
                                 </button>
 

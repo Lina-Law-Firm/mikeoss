@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ChatHistoryProvider } from "@/app/contexts/ChatHistoryContext";
 import { SidebarContext } from "@/app/contexts/SidebarContext";
 import { AppSidebar } from "@/app/components/shared/AppSidebar";
+import { DemoBanner } from "@/app/components/shared/DemoBanner";
 
 export default function MikeLayout({
     children,
@@ -85,6 +86,7 @@ export default function MikeLayout({
                 }}
             >
                 <div className="h-dvh bg-white flex flex-col">
+                    <DemoBanner />
                     <div className="flex-1 flex overflow-hidden">
                         <AppSidebar
                             isOpen={isSidebarOpen}
