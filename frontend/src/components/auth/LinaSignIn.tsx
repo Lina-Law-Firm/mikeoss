@@ -1,14 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
-import { updateUserProfile } from "@/app/lib/mikeApi";
 import { ShaderAnimation } from "@/components/ui/shader-animation";
 import {
     GoogleGlyph,
@@ -61,37 +58,28 @@ const PROVIDERS = [
 
 type View = "choice" | "custom-provider";
 
-interface LinaSignInProps {
-    mode?: "signin" | "signup";
-}
-
 /**
  * Split sign-in surface ported from lina-os-front's Screen1_SignIn: dark
  * WebGL-shader hero on the left, light auth card on the right. Wired to
  * mikeoss's Supabase + AuthContext (email/password + Google OAuth); the
  * SSO provider picker is a visual affordance (SAML/OIDC isn't wired yet).
  */
-export function LinaSignIn({ mode = "signin" }: LinaSignInProps) {
-    const isSignup = mode === "signup";
+export function LinaSignIn() {
     const router = useRouter();
     const { isAuthenticated, authLoading } = useAuth();
 
     const [view, setView] = useState<View>("choice");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [name, setName] = useState("");
-    const [organisation, setOrganisation] = useState("");
     const [pending, setPending] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [ssoNote, setSsoNote] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
 
     useEffect(() => {
-        if (!authLoading && isAuthenticated && !success) {
+        if (!authLoading && isAuthenticated) {
             router.replace("/assistant");
         }
-    }, [authLoading, isAuthenticated, router, success]);
+    }, [authLoading, isAuthenticated, router]);
 
     async function signInWithEmail() {
         if (pending) return;
@@ -109,50 +97,7 @@ export function LinaSignIn({ mode = "signin" }: LinaSignInProps) {
         router.push("/assistant");
     }
 
-    async function signUpWithEmail() {
-        if (pending) return;
-        setError(null);
-        if (password !== confirmPassword) {
-            setError("Passwords do not match");
-            return;
-        }
-        if (password.length < 6) {
-            setError("Password must be at least 6 characters");
-            return;
-        }
-        setPending("email");
-        const { data, error: signUpError } = await supabase.auth.signUp({
-            email: email.trim(),
-            password,
-        });
-        if (signUpError) {
-            setError(signUpError.message);
-            setPending(null);
-            return;
-        }
-        if (data.session) {
-            const trimmedName = name.trim();
-            const trimmedOrg = organisation.trim();
-            if (trimmedName || trimmedOrg) {
-                try {
-                    await updateUserProfile({
-                        ...(trimmedName && { displayName: trimmedName }),
-                        ...(trimmedOrg && { organisation: trimmedOrg }),
-                    });
-                } catch (profileError) {
-                    console.error(
-                        "[signup] failed to persist profile fields",
-                        profileError,
-                    );
-                }
-            }
-        }
-        setSuccess(true);
-        setTimeout(() => router.push("/assistant"), 2000);
-    }
-
-    const submitEmail = () =>
-        isSignup ? signUpWithEmail() : signInWithEmail();
+    const submitEmail = () => signInWithEmail();
 
     async function goGoogle() {
         if (pending) return;
@@ -224,19 +169,7 @@ export function LinaSignIn({ mode = "signin" }: LinaSignInProps) {
                 {/* Right: auth card on warm paper. */}
                 <section className="flex flex-col justify-center bg-[#F0EDE6] px-6 py-[clamp(1.25rem,4vh,3.5rem)] sm:px-10 md:px-14">
                     <div className="mx-auto w-full max-w-[400px] rounded-xl border border-gray-200 bg-white p-6 shadow-lg shadow-black/5 sm:p-7">
-                        {success ? (
-                            <div className="flex flex-col items-center gap-3 py-4 text-center">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
-                                    <CheckCircle2 className="h-6 w-6 text-green-600" />
-                                </div>
-                                <h2 className="m-0 text-lg font-semibold tracking-tight text-gray-900">
-                                    Account created!
-                                </h2>
-                                <p className="m-0 text-sm text-gray-500">
-                                    Redirecting you to the home page…
-                                </p>
-                            </div>
-                        ) : view === "custom-provider" ? (
+                        {view === "custom-provider" ? (
                             <div>
                                 <button
                                     type="button"
@@ -307,14 +240,10 @@ export function LinaSignIn({ mode = "signin" }: LinaSignInProps) {
                                     />
                                     <div className="flex flex-col gap-1 text-center">
                                         <h2 className="m-0 text-lg font-semibold tracking-tight text-gray-900">
-                                            {isSignup
-                                                ? "Create your account"
-                                                : "Sign in"}
+                                            Sign in
                                         </h2>
                                         <p className="m-0 text-sm text-gray-500">
-                                            {isSignup
-                                                ? "Set up your Lina OS sign-in to continue."
-                                                : "Enter your credentials to access your account."}
+                                            Enter your credentials to access your account.
                                         </p>
                                     </div>
                                 </div>
@@ -327,56 +256,6 @@ export function LinaSignIn({ mode = "signin" }: LinaSignInProps) {
                                     }}
                                 >
                                     <div className="space-y-4">
-                                        {isSignup && (
-                                            <>
-                                                <div className="space-y-2">
-                                                    <label
-                                                        htmlFor="signup-name"
-                                                        className="block text-sm font-medium text-gray-900"
-                                                    >
-                                                        Name{" "}
-                                                        <span className="font-normal text-gray-400">
-                                                            (optional)
-                                                        </span>
-                                                    </label>
-                                                    <input
-                                                        id="signup-name"
-                                                        type="text"
-                                                        value={name}
-                                                        onChange={(e) =>
-                                                            setName(
-                                                                e.target.value,
-                                                            )
-                                                        }
-                                                        placeholder="Your name"
-                                                        className={FIELD}
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label
-                                                        htmlFor="signup-org"
-                                                        className="block text-sm font-medium text-gray-900"
-                                                    >
-                                                        Organisation{" "}
-                                                        <span className="font-normal text-gray-400">
-                                                            (optional)
-                                                        </span>
-                                                    </label>
-                                                    <input
-                                                        id="signup-org"
-                                                        type="text"
-                                                        value={organisation}
-                                                        onChange={(e) =>
-                                                            setOrganisation(
-                                                                e.target.value,
-                                                            )
-                                                        }
-                                                        placeholder="Your organisation"
-                                                        className={FIELD}
-                                                    />
-                                                </div>
-                                            </>
-                                        )}
                                         <div className="space-y-2">
                                             <label
                                                 htmlFor="signin-email"
@@ -387,7 +266,7 @@ export function LinaSignIn({ mode = "signin" }: LinaSignInProps) {
                                             <input
                                                 id="signin-email"
                                                 type="email"
-                                                autoFocus={!isSignup}
+                                                autoFocus
                                                 autoComplete="username"
                                                 value={email}
                                                 onChange={(e) =>
@@ -407,46 +286,15 @@ export function LinaSignIn({ mode = "signin" }: LinaSignInProps) {
                                             <input
                                                 id="signin-password"
                                                 type="password"
-                                                autoComplete={
-                                                    isSignup
-                                                        ? "new-password"
-                                                        : "current-password"
-                                                }
+                                                autoComplete="current-password"
                                                 value={password}
                                                 onChange={(e) =>
                                                     setPassword(e.target.value)
                                                 }
-                                                placeholder={
-                                                    isSignup
-                                                        ? "Create a password"
-                                                        : "Enter your password"
-                                                }
+                                                placeholder="Enter your password"
                                                 className={FIELD}
                                             />
                                         </div>
-                                        {isSignup && (
-                                            <div className="space-y-2">
-                                                <label
-                                                    htmlFor="signup-confirm"
-                                                    className="block text-sm font-medium text-gray-900"
-                                                >
-                                                    Confirm password
-                                                </label>
-                                                <input
-                                                    id="signup-confirm"
-                                                    type="password"
-                                                    autoComplete="new-password"
-                                                    value={confirmPassword}
-                                                    onChange={(e) =>
-                                                        setConfirmPassword(
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    placeholder="Confirm your password"
-                                                    className={FIELD}
-                                                />
-                                            </div>
-                                        )}
                                     </div>
 
                                     {error && (
@@ -455,38 +303,33 @@ export function LinaSignIn({ mode = "signin" }: LinaSignInProps) {
                                         </p>
                                     )}
 
-                                    {!isSignup && (
-                                        <div className="flex items-center justify-between gap-2">
-                                            <label className="flex cursor-pointer items-center gap-2 text-sm font-normal text-gray-500">
-                                                <input
-                                                    type="checkbox"
-                                                    className="size-4 rounded border-gray-200 accent-gray-900"
-                                                />
-                                                Remember me
-                                            </label>
-                                            <a
-                                                href="#"
-                                                className="text-sm text-gray-700 underline underline-offset-2 hover:no-underline"
-                                            >
-                                                Forgot password?
-                                            </a>
-                                        </div>
-                                    )}
+                                    <div className="flex items-center justify-between gap-2">
+                                        <label className="flex cursor-pointer items-center gap-2 text-sm font-normal text-gray-500">
+                                            <input
+                                                type="checkbox"
+                                                className="size-4 rounded border-gray-200 accent-gray-900"
+                                            />
+                                            Remember me
+                                        </label>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-700 underline underline-offset-2 hover:no-underline"
+                                        >
+                                            Forgot password?
+                                        </a>
+                                    </div>
 
                                     <button
                                         type="submit"
                                         disabled={
                                             !!pending ||
                                             !emailValid ||
-                                            password.length <
-                                                (isSignup ? 6 : 1)
+                                            password.length < 1
                                         }
                                         className={PRIMARY_BTN}
                                     >
                                         {pending === "email" ? (
                                             <Spinner />
-                                        ) : isSignup ? (
-                                            "Create account"
                                         ) : (
                                             "Sign in"
                                         )}
@@ -512,9 +355,7 @@ export function LinaSignIn({ mode = "signin" }: LinaSignInProps) {
                                     ) : (
                                         <>
                                             <GoogleGlyph />{" "}
-                                            {isSignup
-                                                ? "Sign up with Google"
-                                                : "Login with Google"}
+                                            Login with Google
                                         </>
                                     )}
                                 </button>
@@ -530,60 +371,23 @@ export function LinaSignIn({ mode = "signin" }: LinaSignInProps) {
                                     >
                                         Use your firm&rsquo;s SSO
                                     </button>
-                                    {isSignup ? (
-                                        <Link
-                                            href="/login"
-                                            className="text-gray-500 underline underline-offset-2 hover:no-underline"
-                                        >
-                                            Already have an account? Log in
-                                        </Link>
-                                    ) : (
-                                        <Link
-                                            href="/signup"
-                                            className="text-gray-500 underline underline-offset-2 hover:no-underline"
-                                        >
-                                            Don&rsquo;t have an account? Sign up
-                                        </Link>
-                                    )}
+                                    <p className="text-gray-500">
+                                        Accounts are managed by your workspace administrator.
+                                    </p>
                                 </div>
                             </>
                         )}
                     </div>
 
                     {/* mikeoss legal / demo notices (kept under the card). */}
-                    {!success && (
-                        <div className="mx-auto mt-4 w-full max-w-[400px] space-y-3 text-center">
-                            {isSignup && (
-                                <p className="text-xs text-gray-500">
-                                    By signing up, you agree to our{" "}
-                                    <Link
-                                        href="https://mikeoss.com/terms"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="underline underline-offset-2 hover:no-underline"
-                                    >
-                                        Terms of Use
-                                    </Link>{" "}
-                                    and{" "}
-                                    <Link
-                                        href="https://mikeoss.com/privacy"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="underline underline-offset-2 hover:no-underline"
-                                    >
-                                        Privacy Policy
-                                    </Link>
-                                    .
-                                </p>
-                            )}
-                            <p className="text-xs leading-relaxed text-gray-500">
-                                Lina OS is currently a demo service. Please do
-                                not upload, submit, or store sensitive,
-                                confidential, privileged, client, or personally
-                                identifiable documents.
-                            </p>
-                        </div>
-                    )}
+                    <div className="mx-auto mt-4 w-full max-w-[400px] space-y-3 text-center">
+                        <p className="text-xs leading-relaxed text-gray-500">
+                            Lina OS is currently a demo service. Please do not
+                            upload, submit, or store sensitive, confidential,
+                            privileged, client, or personally identifiable
+                            documents.
+                        </p>
+                    </div>
                 </section>
             </div>
         </div>
